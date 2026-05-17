@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>33 warp groups double layer Danish paper cord weaving - v1.5</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            touch-action: manipulation; 
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        p.instruction {
+            color: #7f8c8d;
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+
+        .diagram-container {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #fff;
+            margin-bottom: 25px;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+            cursor: pointer;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: #fff;
+            padding: 20px 35px;
+            border-radius: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            max-width: 95vw;
+        }
+
+        .color-palette-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .palette-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .color-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            outline: none;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            -webkit-appearance: none;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .color-btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-white {
+            background-color: #ffffff !important;
+            border: 2px solid #ccc;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+        }
+
+        .hidden-utility {
+            display: none !important;
+        }
+
+        .divider {
+            width: 1px;
+            height: 70px;
+            background-color: #ddd;
+            flex-shrink: 0;
+        }
+
+        .action-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .lock-btn, .reset-btn {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            width: 170px;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+        }
+
+        .lock-btn {
+            border: 2px solid #2c3e50;
+            background-color: #ffffff;
+            color: #2c3e50;
+        }
+
+        .lock-btn:hover {
+            background-color: #2c3e50;
+            color: #ffffff;
+        }
+
+        .lock-btn.locked {
+            background-color: #c0392b;
+            border-color: #c0392b;
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(192, 41, 43, 0.4);
+        }
+
+        .reset-btn {
+            border: 2px solid #7f8c8d;
+            background-color: #ffffff;
+            color: #7f8c8d;
+        }
+
+        .reset-btn:hover {
+            background-color: #7f8c8d;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>33 warp groups double layer Danish paper cord weaving</h1>
+    <p class="instruction">Click or tap a warp section to color all warps, or a weft section to color its horizontal row.</p>
+
+    <div class="diagram-container">
+        <canvas id="diagramCanvas" width="1160" height="820"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="color-palette-container">
+            <div class="palette-row">
+                <button id="util-white" class="color-btn btn-white" onclick="applyColor('#ffffff')" title="White"></button>
+                <button class="color-btn" style="background-color: #c4b49b;" onclick="applyColor('#c4b49b')" title="#C4B49B"></button>
+                <button class="color-btn" style="background-color: #1d2d44;" onclick="applyColor('#1d2d44')" title="#1D2D44"></button>
+                <button class="color-btn" style="background-color: #9084a3;" onclick="applyColor('#9084a3')" title="#9084A3"></button>
+                <button class="color-btn" style="background-color: #dda2b5;" onclick="applyColor('#dda2b5')" title="#DDA2B5"></button>
+                <button class="color-btn" style="background-color: #8c8685;" onclick="applyColor('#8c8685')" title="#8C8685"></button>
+                <button class="color-btn" style="background-color: #6086b6;" onclick="applyColor('#6086b6')" title="#6086B6"></button>
+                <button class="color-btn" style="background-color: #a62639;" onclick="applyColor('#a62639')" title="#A62639"></button>
+                <button class="color-btn" style="background-color: #a9a5d1;" onclick="applyColor('#a9a5d1')" title="#A9A5D1"></button>
+            </div>
+            <div class="palette-row">
+                <button class="color-btn" style="background-color: #d95d24;" onclick="applyColor('#d95d24')" title="#D95D24"></button>
+                <button class="color-btn" style="background-color: #4a352a;" onclick="applyColor('#4a352a')" title="#4A352A"></button>
+                <button class="color-btn" style="background-color: #757b7d;" onclick="applyColor('#757b7d')" title="#757B7D"></button>
+                <button class="color-btn" style="background-color: #d1b436;" onclick="applyColor('#d1b436')" title="#D1B436"></button>
+                <button class="color-btn" style="background-color: #aa977a;" onclick="applyColor('#aa977a')" title="#AA977A"></button>
+                <button class="color-btn" style="background-color: #847c77;" onclick="applyColor('#847c77')" title="#847C77"></button>
+                <button class="color-btn" style="background-color: #3a6f96;" onclick="applyColor('#3a6f96')" title="#3A6F96"></button>
+                <button class="color-btn" style="background-color: #3c7a5a;" onclick="applyColor('#3c7a5a')" title="#3C7A5A"></button>
+            </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="action-panel">
+            <button id="lockBtn" class="lock-btn" onclick="toggleWarpLock()">
+                🔓 warp lock: Unlocked
+            </button>
+            <button id="resetBtn" class="reset-btn" onclick="resetDiagram()">
+                🔄 Reset Diagram
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('diagramCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const X_OFFSET = 50; 
+
+        let currentBgColor = '#808080'; 
+        let selectedWarpIndex = null; 
+        let selectedWeftIndex = null;
+        let isWarpLocked = false; 
+
+        const blocks = [
+            [0, 0, 80, 80],       [0, 740, 80, 80],     [980, 0, 80, 80],     [980, 740, 80, 80],
+            [200, 0, 80, 80],     [200, 740, 80, 80],   [780, 0, 80, 80],     [780, 740, 80, 80]
+        ].map(b => [b[0] + X_OFFSET, b[1], b[2], b[3]]);
+
+        const warpSections = [
+            { x: 80,  y: 0,   w: 120, h: 80,  color: '#c4b49b' },
+            { x: 280, y: 0,   w: 500, h: 80,  color: '#c4b49b' },
+            { x: 860, y: 0,   w: 120, h: 80,  color: '#c4b49b' },
+            { x: 80,  y: 740, w: 120, h: 80,  color: '#c4b49b' },
+            { x: 280, y: 740, w: 500, h: 80,  color: '#c4b49b' },
+            { x: 820, y: 740, w: 160, h: 80,  color: '#c4b49b' },
+            
+            { x: 280, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 360, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 440, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 520, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 600, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 680, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 760, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 180, y: 80,  w: 20,  h: 660, color: '#c4b49b' },
+            { x: 860, y: 80,  w: 20,  h: 660, color: '#c4b49b' }
+        ].map(w => { w.x += X_OFFSET; return w; });
+
+        const weftSections = [];
+
+        function getInitialRowColor(rowNum) {
+            if (rowNum >= 1 && rowNum <= 16) return '#c4b49b';
+            if (rowNum === 17 || rowNum === 18) return '#a62639';
+            if (rowNum === 19) return '#c4b49b';
+            if (rowNum === 20 || rowNum === 21) return '#d95d24';
+            if (rowNum === 22) return '#c4b49b';
+            if (rowNum === 23 || rowNum === 24) return '#d1b436';
+            if (rowNum === 25) return '#c4b49b';
+            if (rowNum === 26 || rowNum === 27) return '#3c7a5a';
+            if (rowNum === 28) return '#c4b49b';
+            if (rowNum === 29 || rowNum === 30) return '#3a6f96'; 
+            if (rowNum === 31) return '#c4b49b';
+            if (rowNum === 32 || rowNum === 33) return '#1d2d44';
+            return '#a62639'; 
+        }
+
+        for (let y = 80; y <= 720; y += 40) {
+            let rowA = ((720 - y) / 20) + 1; 
+            let colorA = getInitialRowColor(rowA);
+
+            weftSections.push({ x: 0,   y: y, w: 280, h: 20, color: colorA });
+            weftSections.push({ x: 300, y: y, w: 140, h: 20, color: colorA });
+            weftSections.push({ x: 460, y: y, w: 140, h: 20, color: colorA });
+            weftSections.push({ x: 620, y: y, w: 140, h: 20, color: colorA });
+            weftSections.push({ x: 780, y: y, w: 280, h: 20, color: colorA });
+        }
+
+        for (let y = 100; y <= 700; y += 40) {
+            let rowB = ((720 - y) / 20) + 1;
+            let colorB = getInitialRowColor(rowB);
+
+            weftSections.push({ x: 0,   y: y, w: 180, h: 20, color: colorB });
+            weftSections.push({ x: 200, y: y, w: 160, h: 20, color: colorB });
+            weftSections.push({ x: 380, y: y, w: 140, h: 20, color: colorB });
+            weftSections.push({ x: 540, y: y, w: 140, h: 20, color: colorB });
+            weftSections.push({ x: 700, y: y, w: 160, h: 20, color: colorB });
+            weftSections.push({ x: 880, y: y, w: 180, h: 20, color: colorB });
+        }
+
+        weftSections.forEach(w => w.x += X_OFFSET);
+
+        function drawDiagram() {
+            // FIX Part A: Wipe the active memory stack cleanly to kick Safari's engine awake
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 1. Base Canvas Floor Layout
+            ctx.fillStyle = currentBgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+
+            // 2. Render Warp Sections
+            warpSections.forEach((warp, index) => {
+                const renderY = canvas.height - warp.y - warp.h;
+                ctx.fillStyle = warp.color;
+                ctx.fillRect(warp.x, renderY, warp.w, warp.h);
+                ctx.strokeRect(warp.x + 0.5, renderY + 0.5, warp.w - 1, renderY - 1);
+
+                if (index === selectedWarpIndex) {
+                    ctx.save();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = isWarpLocked ? '#7f8c8d' : '#00e5ff';
+                    ctx.strokeRect(warp.x + 1.5, renderY + 1.5, warp.w - 3, warp.h - 3);
+                    ctx.restore();
+                }
+            });
+
+            // 3. Render Weft Sections
+            weftSections.forEach((weft, index) => {
+                const renderY = canvas.height - weft.y - weft.h;
+                ctx.fillStyle = weft.color;
+                ctx.fillRect(weft.x, renderY, weft.w, weft.h);
+                ctx.strokeRect(weft.x + 0.5, renderY + 0.5, weft.w - 1, weft.h - 1);
+
+                if (index === selectedWeftIndex) {
+                    ctx.save();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#00e5ff';
+                    ctx.strokeRect(weft.x + 1.5, renderY + 1.5, weft.w - 3, weft.h - 3);
+                    ctx.restore();
+                }
+            });
+
+            // 4. Overlaid Structural Blocks
+            ctx.fillStyle = '#4a2711';
+            blocks.forEach(block => {
+                const renderY = canvas.height - block[1] - block[3];
+                ctx.fillRect(block[0], renderY, block[2], block[3]);
+                ctx.strokeRect(block[0] + 0.5, renderY + 0.5, block[2] - 1, block[3] - 1);
+            });
+
+            // 5. Symmetrical Row Text Indicators
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 12px "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            let rowNumber = 1;
+            for (let y = 720; y >= 80; y -= 20) {
+                const textRenderY = canvas.height - y - 10;
+                ctx.fillText(rowNumber, X_OFFSET / 2, textRenderY);
+                ctx.fillText(rowNumber, canvas.width - (X_OFFSET / 2), textRenderY);
+                rowNumber++;
+            }
+        }
+
+        function toggleWarpLock() {
+            isWarpLocked = !isWarpLocked;
+            const btn = document.getElementById('lockBtn');
+            const whiteBtn = document.getElementById('util-white');
+            
+            if (isWarpLocked) {
+                btn.innerText = "🔒 warp lock: Locked";
+                btn.classList.add('locked');
+                whiteBtn.classList.add('hidden-utility');
+                selectedWarpIndex = null;
+            } else {
+                btn.innerText = "🔓 warp lock: Unlocked";
+                btn.classList.remove('locked');
+                whiteBtn.classList.remove('hidden-utility');
+            }
+            drawDiagram();
+        }
+
+        function resetDiagram() {
+            currentBgColor = '#808080';
+            warpSections.forEach(warp => warp.color = '#c4b49b');
+
+            weftSections.forEach(weft => {
+                let rowNum = ((720 - weft.y) / 20) + 1;
+                weft.color = getInitialRowColor(rowNum);
+            });
+
+            selectedWarpIndex = null;
+            selectedWeftIndex = null;
+            drawDiagram();
+        }
+
+        function applyColor(colorHex) {
+            if (selectedWarpIndex !== null) {
+                if (!isWarpLocked) {
+                    warpSections.forEach(warp => {
+                        warp.color = colorHex;
+                    });
+                }
+            } else if (selectedWeftIndex !== null) {
+                const targetY = weftSections[selectedWeftIndex].y;
+                weftSections.forEach(weft => {
+                    if (weft.y === targetY) {
+                        weft.color = colorHex;
+                    }
+                });
+            } else {
+                if (!isWarpLocked) {
+                    currentBgColor = colorHex;
+                }
+            }
+            drawDiagram();
+        }
+
+        function handleInteraction(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clickX = (clientX - rect.left) * scaleX;
+            const clickY = (clientY - rect.top) * scaleY;
+            const transformedY = canvas.height - clickY;
+
+            let foundMatch = false;
+            selectedWarpIndex = null;
+            selectedWeftIndex = null;
+
+            for (let i = 0; i < weftSections.length; i++) {
+                const w = weftSections[i];
+                if (clickX >= w.x && clickX <= (w.x + w.w) && transformedY >= w.y && transformedY <= (w.y + w.h)) {
+                    selectedWeftIndex = i;
+                    foundMatch = true;
+                    break;
+                }
+            }
+
+            if (!foundMatch && !isWarpLocked) {
+                for (let i = 0; i < warpSections.length; i++) {
+                    const w = warpSections[i];
+                    if (clickX >= w.x && clickX <= (w.x + w.w) && transformedY >= w.y && transformedY <= (w.y + w.h)) {
+                        selectedWarpIndex = i;
+                        foundMatch = true;
+                        break;
+                    }
+                }
+            }
+
+            drawDiagram();
+        }
+
+        canvas.addEventListener('click', function(event) {
+            handleInteraction(event.clientX, event.clientY);
+        });
+
+        canvas.addEventListener('touchstart', function(event) {
+            event.preventDefault(); 
+            const touch = event.touches[0];
+            handleInteraction(touch.clientX, touch.clientY);
+        }, { passive: false });
+
+        // FIX Part B: Forces a 100ms execution delay loop sequence when the index loads.
+        // This ensures mobile Webkit safely resolves layout bounds before drawing pixels.
+        setTimeout(drawDiagram, 100);
+    </script>
+
+</body>
+</html>
