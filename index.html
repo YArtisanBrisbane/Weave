@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>33 warp groups double layer Danish paper cord weaving - v1.5</title>
+    <title>33 warp groups double layer Danish paper cord weaving - v1.6</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -171,7 +171,8 @@
     <p class="instruction">Click or tap a warp section to color all warps, or a weft section to color its horizontal row.</p>
 
     <div class="diagram-container">
-        <canvas id="diagramCanvas" width="1160" height="820"></canvas>
+        <!-- Width and Height set to exactly 80% of original dimensions -->
+        <canvas id="diagramCanvas" width="928" height="656"></canvas>
     </div>
 
     <div class="controls">
@@ -216,6 +217,9 @@
         const ctx = canvas.getContext('2d');
 
         const X_OFFSET = 50; 
+        const BASE_WIDTH = 1160;
+        const BASE_HEIGHT = 820;
+        const SCALE = 0.8; // 80% Scale Modifier
 
         let currentBgColor = '#808080'; 
         let selectedWarpIndex = null; 
@@ -290,22 +294,25 @@
         weftSections.forEach(w => w.x += X_OFFSET);
 
         function drawDiagram() {
-            // FIX Part A: Wipe the active memory stack cleanly to kick Safari's engine awake
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            ctx.save();
+            // Scale internal vector processing matrices down to 80%
+            ctx.scale(SCALE, SCALE);
+
             // 1. Base Canvas Floor Layout
             ctx.fillStyle = currentBgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
 
             // 2. Render Warp Sections
             warpSections.forEach((warp, index) => {
-                const renderY = canvas.height - warp.y - warp.h;
+                const renderY = BASE_HEIGHT - warp.y - warp.h;
                 ctx.fillStyle = warp.color;
                 ctx.fillRect(warp.x, renderY, warp.w, warp.h);
-                ctx.strokeRect(warp.x + 0.5, renderY + 0.5, warp.w - 1, renderY - 1);
+                ctx.strokeRect(warp.x + 0.5, renderY + 0.5, warp.w - 1, warp.h - 1);
 
                 if (index === selectedWarpIndex) {
                     ctx.save();
@@ -318,7 +325,7 @@
 
             // 3. Render Weft Sections
             weftSections.forEach((weft, index) => {
-                const renderY = canvas.height - weft.y - weft.h;
+                const renderY = BASE_HEIGHT - weft.y - weft.h;
                 ctx.fillStyle = weft.color;
                 ctx.fillRect(weft.x, renderY, weft.w, weft.h);
                 ctx.strokeRect(weft.x + 0.5, renderY + 0.5, weft.w - 1, weft.h - 1);
@@ -335,7 +342,7 @@
             // 4. Overlaid Structural Blocks
             ctx.fillStyle = '#4a2711';
             blocks.forEach(block => {
-                const renderY = canvas.height - block[1] - block[3];
+                const renderY = BASE_HEIGHT - block[1] - block[3];
                 ctx.fillRect(block[0], renderY, block[2], block[3]);
                 ctx.strokeRect(block[0] + 0.5, renderY + 0.5, block[2] - 1, block[3] - 1);
             });
@@ -348,11 +355,13 @@
 
             let rowNumber = 1;
             for (let y = 720; y >= 80; y -= 20) {
-                const textRenderY = canvas.height - y - 10;
+                const textRenderY = BASE_HEIGHT - y - 10;
                 ctx.fillText(rowNumber, X_OFFSET / 2, textRenderY);
-                ctx.fillText(rowNumber, canvas.width - (X_OFFSET / 2), textRenderY);
+                ctx.fillText(rowNumber, BASE_WIDTH - (X_OFFSET / 2), textRenderY);
                 rowNumber++;
             }
+
+            ctx.restore();
         }
 
         function toggleWarpLock() {
@@ -412,12 +421,13 @@
         function handleInteraction(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
             
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
+            // Scaler parameters are adjusted to reflect the 80% geometry bounds shift
+            const scaleX = BASE_WIDTH / rect.width;
+            const scaleY = BASE_HEIGHT / rect.height;
 
             const clickX = (clientX - rect.left) * scaleX;
             const clickY = (clientY - rect.top) * scaleY;
-            const transformedY = canvas.height - clickY;
+            const transformedY = BASE_HEIGHT - clickY;
 
             let foundMatch = false;
             selectedWarpIndex = null;
@@ -456,8 +466,6 @@
             handleInteraction(touch.clientX, touch.clientY);
         }, { passive: false });
 
-        // FIX Part B: Forces a 100ms execution delay loop sequence when the index loads.
-        // This ensures mobile Webkit safely resolves layout bounds before drawing pixels.
         setTimeout(drawDiagram, 100);
     </script>
 
