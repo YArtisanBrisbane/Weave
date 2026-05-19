@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>33 warp groups double layer Danish paper cord weaving - v1.9</title>
+    <title>33 warp groups double layer Danish paper cord weaving - v2.7 RWD</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,7 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 10px; 
             margin: 0;
             touch-action: manipulation; 
         }
@@ -20,14 +20,16 @@
         h1 {
             color: #2c3e50;
             margin-bottom: 5px;
-            font-size: 24px;
+            font-size: 20px; 
             text-align: center;
         }
 
         p.instruction {
             color: #7f8c8d;
-            margin: 0 0 20px 0;
-            font-size: 14px;
+            margin: 0 0 15px 0;
+            font-size: 13px;
+            text-align: center;
+            padding: 0 10px;
         }
 
         .diagram-container {
@@ -35,10 +37,11 @@
             border-radius: 4px;
             overflow: hidden;
             background-color: #fff;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             position: relative;
             -webkit-user-select: none;
             user-select: none;
+            max-width: 100%; 
         }
 
         canvas {
@@ -46,34 +49,44 @@
             cursor: pointer;
             image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
+            max-width: 100%;
+            height: auto !important; 
         }
 
         .controls {
             display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; 
             align-items: center;
-            gap: 25px;
+            justify-content: center;
+            gap: 20px;
             background: #fff;
-            padding: 20px 35px;
-            border-radius: 30px;
+            padding: 15px 25px;
+            border-radius: 24px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            max-width: 95vw;
+            width: 100%;
+            max-width: 928px;
+            box-sizing: border-box;
         }
 
         .color-palette-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            align-items: center;
         }
 
         .palette-row {
             display: flex;
-            gap: 12px;
+            gap: 8px; 
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .color-btn {
-            width: 42px;
-            height: 42px;
+            width: 38px; 
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -85,7 +98,7 @@
         }
 
         .color-btn:hover {
-            transform: scale(1.15);
+            transform: scale(1.1);
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
@@ -104,9 +117,10 @@
             flex-direction: column;
             gap: 10px;
             flex-shrink: 0;
+            width: auto;
         }
 
-        .reset-btn {
+        .reset-btn, .toggle-lines-btn {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 600;
             font-size: 13px;
@@ -116,11 +130,15 @@
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             white-space: nowrap;
             width: 170px;
             box-sizing: border-box;
             -webkit-appearance: none;
+        }
+
+        .reset-btn {
             border: 2px solid #7f8c8d;
             background-color: #ffffff;
             color: #7f8c8d;
@@ -131,12 +149,43 @@
             color: #ffffff;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
+
+        .toggle-lines-btn {
+            border: 2px solid #2c3e50;
+            background-color: #ffffff;
+            color: #2c3e50;
+        }
+
+        .toggle-lines-btn:hover {
+            background-color: #2c3e50;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            h1 {
+                font-size: 16px;
+            }
+            .controls {
+                padding: 15px;
+                gap: 15px;
+            }
+            .color-btn {
+                width: 34px;
+                height: 34px;
+            }
+            .reset-btn, .toggle-lines-btn {
+                width: 100%; 
+            }
+        }
     </style>
 </head>
 <body>
 
     <h1>33 warp groups double layer Danish paper cord weaving</h1>
-    <!-- UPDATED: Subtitle instructions swapped and updated per request -->
     <p class="instruction">Click or tap a weft section to colour all weft, or a warp section to colour its horizontal row</p>
 
     <div class="diagram-container">
@@ -172,6 +221,10 @@
             <button id="resetBtn" class="reset-btn" onclick="resetDiagram()">
                 🔄 Reset Diagram
             </button>
+            <!-- NEW: Toggle visibility option wrapper button element -->
+            <button id="toggleLinesBtn" class="toggle-lines-btn" onclick="toggleGuidelines()">
+                👁️ Hide Guidelines
+            </button>
         </div>
     </div>
 
@@ -187,6 +240,7 @@
         let currentBgColor = '#808080'; 
         let selectedWarpIndex = null; 
         let selectedWeftIndex = null;
+        let showGuidelines = true; // NEW: Tracks grid lines layer state
 
         const blocks = [
             [0, 0, 80, 80],       [0, 740, 80, 80],     [980, 0, 80, 80],     [980, 740, 80, 80],
@@ -308,7 +362,47 @@
                 ctx.strokeRect(block[0] + 0.5, renderY + 0.5, block[2] - 1, block[3] - 1);
             });
 
-            // 5. Symmetrical Row Text Indicators
+            // 5. Conditionally Render guidelines layer over blocks
+            if (showGuidelines) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)'; 
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]); 
+                
+                for (let y = 720; y >= 80; y -= 20) {
+                    const lineRenderY = BASE_HEIGHT - y - 10;
+                    const startX = X_OFFSET; 
+                    const endX = X_OFFSET + 1060;
+
+                    let activeRowWarps = warpSections.filter(w => {
+                        return (y >= w.y && y < (w.y + w.h));
+                    }).sort((a, b) => a.x - b.x);
+
+                    let currentX = startX;
+
+                    activeRowWarps.forEach(warp => {
+                        if (warp.x > currentX && warp.x < endX) {
+                            ctx.beginPath();
+                            ctx.moveTo(currentX, lineRenderY);
+                            ctx.lineTo(warp.x, lineRenderY);
+                            ctx.stroke();
+                        }
+                        if (warp.x + warp.w > currentX) {
+                            currentX = warp.x + warp.w;
+                        }
+                    });
+
+                    if (currentX < endX) {
+                        ctx.beginPath();
+                        ctx.moveTo(currentX, lineRenderY);
+                        ctx.lineTo(endX, lineRenderY);
+                        ctx.stroke();
+                    }
+                }
+                ctx.restore();
+            }
+
+            // 6. Symmetrical Row Text Indicators
             ctx.fillStyle = '#2c3e50';
             ctx.font = 'bold 12px "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
@@ -323,6 +417,18 @@
             }
 
             ctx.restore();
+        }
+
+        // NEW: Handles line visibility flipping and button string rewriting logic
+        function toggleGuidelines() {
+            showGuidelines = !showGuidelines;
+            const btn = document.getElementById('toggleLinesBtn');
+            if (showGuidelines) {
+                btn.innerText = "👁️ Hide Guidelines";
+            } else {
+                btn.innerText = "👁️ Show Guidelines";
+            }
+            drawDiagram();
         }
 
         function resetDiagram() {
@@ -360,11 +466,14 @@
         function handleInteraction(clientX, clientY) {
             const rect = canvas.getBoundingClientRect();
             
-            const scaleX = BASE_WIDTH / rect.width;
-            const scaleY = BASE_HEIGHT / rect.height;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
 
-            const clickX = (clientX - rect.left) * scaleX;
-            const clickY = (clientY - rect.top) * scaleY;
+            const canvasX = (clientX - rect.left) * scaleX;
+            const canvasY = (clientY - rect.top) * scaleY;
+
+            const clickX = canvasX / SCALE;
+            const clickY = canvasY / SCALE;
             const transformedY = BASE_HEIGHT - clickY;
 
             let foundMatch = false;
