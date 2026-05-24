@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>33 warp groups double layer Danish paper cord weaving - v2.7 RWD</title>
+    <title>33 warp groups double layer Danish paper cord weaving - v2.8 RWD</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -186,7 +186,8 @@
 <body>
 
     <h1>33 warp groups double layer Danish paper cord weaving</h1>
-    <p class="instruction">Click or tap a weft section to colour all weft, or a warp section to colour its horizontal row</p>
+    <!-- UPDATED: Text description swapped per requirements -->
+    <p class="instruction">Click or tap a warp section to colour all warp, or a weft section to colour its horizontal row</p>
 
     <div class="diagram-container">
         <canvas id="diagramCanvas" width="928" height="656"></canvas>
@@ -221,7 +222,6 @@
             <button id="resetBtn" class="reset-btn" onclick="resetDiagram()">
                 🔄 Reset Diagram
             </button>
-            <!-- NEW: Toggle visibility option wrapper button element -->
             <button id="toggleLinesBtn" class="toggle-lines-btn" onclick="toggleGuidelines()">
                 👁️ Hide Guidelines
             </button>
@@ -240,7 +240,7 @@
         let currentBgColor = '#808080'; 
         let selectedWarpIndex = null; 
         let selectedWeftIndex = null;
-        let showGuidelines = true; // NEW: Tracks grid lines layer state
+        let showGuidelines = true; 
 
         const blocks = [
             [0, 0, 80, 80],       [0, 740, 80, 80],     [980, 0, 80, 80],     [980, 740, 80, 80],
@@ -419,7 +419,6 @@
             ctx.restore();
         }
 
-        // NEW: Handles line visibility flipping and button string rewriting logic
         function toggleGuidelines() {
             showGuidelines = !showGuidelines;
             const btn = document.getElementById('toggleLinesBtn');
